@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Heatmaps</title>
+    <style>
+      html, body, #map-canvas {
+        height: 100%;
+        margin: 0px;
+        padding: 0px
+      }
+      #panel {
+        position: absolute;
+        top: 5px;
+        left: 50%;
+        margin-left: -180px;
+        z-index: 5;
+        background-color: #fff;
+        padding: 5px;
+        border: 1px solid #999;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- <input type="file" id="fileInput"> -->
+    <div id="map-canvas"></div>
+
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=true&libraries=visualization"></script>
+    <script type="text/javascript" src="public/javascripts/vendor/jquery-1.11.2.min.js"></script>
+    <script type="text/javascript" src="public/javascripts/vendor/underscore-min.js"></script>
+    
+    <script>
+    $(document).ready(function(){
+      // contenedor del archivo
+      // var fileInput = document.getElementById('fileInput');
+
+      var data = [];
+      data.push([
+        new google.maps.LatLng(8.5986,-71.1491771),
+        new google.maps.LatLng(8.5986006,-71.1490648),
+        new google.maps.LatLng(8.5985832,-71.1490567),
+        new google.maps.LatLng(8.5986082,-71.1490044),
+        new google.maps.LatLng(8.5985803,-71.1489593),
+        new google.maps.LatLng(8.5986075,-71.1489929),
+        new google.maps.LatLng(8.5986177,-71.1490217),
+        new google.maps.LatLng(8.5986198,-71.1490374),
+        new google.maps.LatLng(8.5986006,-71.1489752),
+        new google.maps.LatLng(8.5985951,-71.1491278),
+        new google.maps.LatLng(8.5986087,-71.1490088),
+        new google.maps.LatLng(8.5986179,-71.1489868),
+        new google.maps.LatLng(8.5985718,-71.1490706),
+        new google.maps.LatLng(8.598611,-71.148988),
+        new google.maps.LatLng(8.5986239,-71.14903),
+        new google.maps.LatLng(8.5986051,-71.1491655),
+        new google.maps.LatLng(8.5986099,-71.1490434)
+      ]);
+
+      data.push([
+        new google.maps.LatLng(8.5984683,-71.1488406),
+        new google.maps.LatLng(8.5984925,-71.1488625),
+        new google.maps.LatLng(8.5985187,-71.1488967),
+        new google.maps.LatLng(8.5985708,-71.1489496),
+        new google.maps.LatLng(8.5984841,-71.1488442),
+        new google.maps.LatLng(8.5984508,-71.1488348),
+        new google.maps.LatLng(8.5985503,-71.1489467),
+        new google.maps.LatLng(8.5984254,-71.1488376),
+        new google.maps.LatLng(8.5985447,-71.1489347),
+        new google.maps.LatLng(8.5984943,-71.1488815),
+        new google.maps.LatLng(8.5985123,-71.1488981),
+        new google.maps.LatLng(8.5984754,-71.1488358),
+        new google.maps.LatLng(8.5985211,-71.1489354)
+      ]);
+
+      function getRandomColor(){
+        function c(){
+          return Math.floor(Math.random()*256).toString(16);
+        }
+        return "#"+c()+c()+c();
+      }
+
+      function initialize() {
+        var mapOptions = {
+          zoom: 13,
+          center: new google.maps.LatLng(8.5986, -71.1491771),
+          mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+
+        // inicializar mapa
+        var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+        // inicializar bandas para centrar automaticamente
+        var bounds = new google.maps.LatLngBounds();
+        // inicializar lector de archivos
+        // var fr = new FileReader();
+        // evento de lectura de archivo
+        // fr.onload = function(e) {
+        //   var data = fr.result;
+        //   if(data === null || data === undefined || data === "") return;
+        //   // leer por lineas
+        //   var lines = data.split('\n');
+        //   _.each(lines, function(line, i){
+        //     // remover el primer y ultimo parentesis
+        //     line = line.substring(1, line.length-1);
+        //     // buscar primer ]
+        //     var pos = line.indexOf(']');
+        //     // si no tiene ] pasar a la siguiente
+        //     if(pos == -1) return;
+        //     // obtener array de macs
+        //     var macs = line.substring(1, pos);
+        //     // separar por comas y contar los macs
+        //     var count = macs.split(',').length;
+        //     // obtener array de coordenadas
+        //     var coords = line.substring(pos + 4, line.length - 1);
+        //     // separar por comas las coordenadas
+        //     // coords = JSON.parse(coords);
+        //     console.log(coords);
+
+
+        //   // lineSplit = line.split(',');
+        //     console.log(coords);
+        //   });
+        // };
+        // // leer archivo de texto
+        // var file = fileInput.files[0];
+        // fr.readAsText(file);
+
+        // recorrer lineas
+        _.each(data, function(cell){
+          // generar color random por cada linea
+          var color = getRandomColor();
+          // recorrer las coordenadas de la celda
+          _.each(cell, function(item){
+            var circleOptions = {
+              strokeColor: color,
+              strokeOpacity: 0.6,
+              strokeWeight: 1,
+              fillColor: color,
+              fillOpacity: 0.1,
+              map: map,
+              center: item,
+              radius: 10,
+            };
+            circle = new google.maps.Circle(circleOptions);
+            bounds.extend(item);
+          });
+        });
+
+        // centrar automaticamente
+        map.fitBounds(bounds);
+      }
+
+      // capturar evento cuando sube el archivo
+      // fileInput.addEventListener('change', function(e) {
+      //   initialize();
+      // });
+
+      initialize();
+    });
+
+    </script>
+
+  </body>
+</html>

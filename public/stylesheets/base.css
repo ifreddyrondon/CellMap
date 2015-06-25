@@ -1,0 +1,9 @@
+html, body, #map-canvas {
+    height: 100%;
+    margin: 0px;
+    padding: 0px
+}
+
+#radius-slider {
+    margin: 0px 10px 40px 10px;
+}

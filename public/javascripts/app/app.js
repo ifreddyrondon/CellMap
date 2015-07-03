@@ -1,10 +1,124 @@
 $(document).ready(function() {
+
+    $('.checkbox').hide();
+
     // contenedor del archivo
     var fileInput = document.getElementById('fileInput');
 
     // opciones de la visualizacion
     var mapOptions = {
         mapTypeId: google.maps.MapTypeId.ROADMAP,
+        styles: [{
+            "featureType": "all",
+            "elementType": "labels.text.fill",
+            "stylers": [{
+                "saturation": 36
+            }, {
+                "color": "#000000"
+            }, {
+                "lightness": 40
+            }]
+        }, {
+            "featureType": "all",
+            "elementType": "labels.text.stroke",
+            "stylers": [{
+                "visibility": "on"
+            }, {
+                "color": "#000000"
+            }, {
+                "lightness": 16
+            }]
+        }, {
+            "featureType": "all",
+            "elementType": "labels.icon",
+            "stylers": [{
+                "visibility": "off"
+            }]
+        }, {
+            "featureType": "administrative",
+            "elementType": "geometry.fill",
+            "stylers": [{
+                "color": "#000000"
+            }, {
+                "lightness": 20
+            }]
+        }, {
+            "featureType": "administrative",
+            "elementType": "geometry.stroke",
+            "stylers": [{
+                "color": "#000000"
+            }, {
+                "lightness": 17
+            }, {
+                "weight": 1.2
+            }]
+        }, {
+            "featureType": "landscape",
+            "elementType": "geometry",
+            "stylers": [{
+                "color": "#000000"
+            }, {
+                "lightness": 20
+            }]
+        }, {
+            "featureType": "poi",
+            "elementType": "geometry",
+            "stylers": [{
+                "color": "#000000"
+            }, {
+                "lightness": 21
+            }]
+        }, {
+            "featureType": "road.highway",
+            "elementType": "geometry.fill",
+            "stylers": [{
+                "color": "#000000"
+            }, {
+                "lightness": 17
+            }]
+        }, {
+            "featureType": "road.highway",
+            "elementType": "geometry.stroke",
+            "stylers": [{
+                "color": "#000000"
+            }, {
+                "lightness": 29
+            }, {
+                "weight": 0.2
+            }]
+        }, {
+            "featureType": "road.arterial",
+            "elementType": "geometry",
+            "stylers": [{
+                "color": "#000000"
+            }, {
+                "lightness": 18
+            }]
+        }, {
+            "featureType": "road.local",
+            "elementType": "geometry",
+            "stylers": [{
+                "color": "#000000"
+            }, {
+                "lightness": 16
+            }]
+        }, {
+            "featureType": "transit",
+            "elementType": "geometry",
+            "stylers": [{
+                "color": "#000000"
+            }, {
+                "lightness": 19
+            }]
+        }, {
+            "featureType": "water",
+            "elementType": "geometry",
+            "stylers": [{
+                "color": "#000000"
+            }, {
+                "lightness": 17
+            }]
+        }]
     };
 
     // opciones de los circulos
@@ -23,8 +137,8 @@ $(document).ready(function() {
         boxStyle: {
             textAlign: "center",
             fontSize: "10pt",
-            fontWeigth: "bold",
-            borderRadius: "100%"
+            borderRadius: "100%",
+            color: "#fff",
         },
         disableAutoPan: true,
         closeBoxURL: "",
@@ -63,6 +177,17 @@ $(document).ready(function() {
                 updateCircles(circleOptions.radius);
             }
         });
+
+        //show/hide labels
+        $('#check').click(function() {
+            //Se verifica si alguno de los checks esta seleccionado
+            if ($('input[name="option"]').is(':checked')) {
+                showLabels();
+            } else {
+                hideLabels();
+            }
+        });
+
         // inicializar mapa
         this.map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
         // inicializar bandas para centrar automaticamente
@@ -83,17 +208,19 @@ $(document).ready(function() {
             var JSONObject = JSON.parse(dat);
 
             // recorremos los objetos dentro del json para construir las celdas
-            _.each(JSONObject, function(item, index){
+            _.each(JSONObject, function(item, index) {
                 // generar color salteado
                 var color = index % 2 ? circleOptions.color1 : circleOptions.color2;
                 // texto interno de los circulos
                 var labelText = String(item.count);
                 // circulos de cada celda por si hay solpadas
                 var celCircles = {};
+
+                
                 // coordenadas por cada celda
-                _.each(item.apGPSs, function(coord){
+                _.each(item.apGPSs, function(coord) {
                     // validacion de las coord
-                    if(!coord.lat || coord.lat == '0' || !coord.lng || coord.lng == '0') return;
+                    if (!coord.lat || coord.lat == '0' || !coord.lng || coord.lng == '0') return;
                     var LatLng = new google.maps.LatLng(coord.lat, coord.lng);
                     // generacion de circulos
                     var circle = new google.maps.Circle(_.extend(circleOptions, {
@@ -104,7 +231,7 @@ $(document).ready(function() {
                         id: coord.lat + coord.lng,
                     }));
                     // guardamos circulos de cada celda por si hay solapados
-                    if(!celCircles[circle.id]) celCircles[circle.id] = circle;
+                    if (!celCircles[circle.id]) celCircles[circle.id] = circle;
 
                     // generacion de labels
                     var label = new InfoBox(_.extend(textOptions, {
@@ -122,16 +249,21 @@ $(document).ready(function() {
                 });
 
                 // coordenadas solapadas
-                if(item.apOlaps.length > 0){
+                if (item.apOlaps.length > 0) {
                     // recorremos las coordendas solapadas
-                    _.each(item.apOlaps, function(olap){
+                    _.each(item.apOlaps, function(olap) {
                         // obtemos un id para buscar en el dict de circles por celda
+                        console.log(olap.lat + ", " + olap.lng + circle);
                         var id = olap = olap.lat + olap.lng;
                         // buscamos el id en el dict
                         var circle = celCircles[id];
+
                         // cambiamos el color
-                        circle.strokeColor = circleOptions.color3;
-                        circle.fillColor = circleOptions.color3;
+                        // circle.strokeColor = circleOptions.color3;
+                        // circle.fillColor = circleOptions.color3;
+
+
+
                     });
                 }
             });
@@ -139,6 +271,8 @@ $(document).ready(function() {
             // centrar mapa
             centerMap();
         };
+
+        $('.checkbox').show();
     }
 
     // HELPERS ------------------------------------------//
@@ -150,7 +284,7 @@ $(document).ready(function() {
     }
 
     // funcion para centrar mapa automaticamente
-    function centerMap(){
+    function centerMap() {
         this.map.fitBounds(this.bounds);
     }
 
@@ -162,10 +296,26 @@ $(document).ready(function() {
         return "#" + c() + c() + c();
     }
 
+    function hideLabels() {
+        _.each(labels, function(label) {
+            label.close(this.map);
+        });
+    }
+
+    function showLabels() {
+        _.each(labels, function(label) {
+            label.open(this.map);
+        });
+    }
+
+
     // INIT -----------------------------------------------//
-    // capturar evento cuando sube el archivo y iniciar todo
+    // capturar evento cuando sube el archivo e iniciar todo
     fileInput.addEventListener('change', function(e) {
         initialize();
+
     });
+
+
 
 });

@@ -1,26 +1,32 @@
 <!DOCTYPE html>
 <html>
-  <head>
+
+<head>
     <meta charset="utf-8">
     <title>CellMap</title>
     <link rel="stylesheet" type="text/css" href="public/stylesheets/jquery.nouislider.min.css">
     <link rel="stylesheet" type="text/css" href="public/stylesheets/jquery.nouislider.pips.min.css">
     <link rel="stylesheet" type="text/css" href="public/stylesheets/base.css">
-  </head>
-  <body>
+</head>
+
+<body>
     <!-- <input type="file" id="fileInput"> -->
     <br>
     <div>
-      <input type="file" id="fileInput">
+        <input type="file" id="fileInput">
     </div>
     <div id="radius-slider"></div>
+    <div class="checkbox">
+        <input id= "check" type="checkbox" name="option" checked > Labels
+    </div>
+    
     <div id="map-canvas"></div>
-
     <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=true&libraries=visualization"></script>
     <script type="text/javascript" src="http://google-maps-utility-library-v3.googlecode.com/svn/trunk/infobox/src/infobox.js"></script>
     <script type="text/javascript" src="public/javascripts/vendor/jquery-1.11.2.min.js"></script>
     <script type="text/javascript" src="public/javascripts/vendor/underscore-min.js"></script>
     <script type="text/javascript" src="public/javascripts/vendor/jquery.nouislider.all.js"></script>
     <script type="text/javascript" src="public/javascripts/app/app.js"></script>
-  </body>
+</body>
+
 </html>

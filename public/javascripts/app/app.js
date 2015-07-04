@@ -8,71 +8,29 @@ $(document).ready(function() {
     // opciones de la visualizacion
     var mapOptions = {
         mapTypeId: google.maps.MapTypeId.ROADMAP,
-        styles: [{
-            "featureType": "all",
-            "elementType": "labels.text.fill",
+        styles:
+
+            [{
+            "featureType": "water",
+            "elementType": "geometry",
             "stylers": [{
-                "saturation": 36
-            }, {
-                "color": "#000000"
-            }, {
-                "lightness": 40
-            }]
-        }, {
-            "featureType": "all",
-            "elementType": "labels.text.stroke",
-            "stylers": [{
-                "visibility": "on"
-            }, {
-                "color": "#000000"
-            }, {
-                "lightness": 16
-            }]
-        }, {
-            "featureType": "all",
-            "elementType": "labels.icon",
-            "stylers": [{
-                "visibility": "off"
-            }]
-        }, {
-            "featureType": "administrative",
-            "elementType": "geometry.fill",
-            "stylers": [{
-                "color": "#000000"
-            }, {
-                "lightness": 20
-            }]
-        }, {
-            "featureType": "administrative",
-            "elementType": "geometry.stroke",
-            "stylers": [{
-                "color": "#000000"
+                "color": "#e9e9e9"
             }, {
                 "lightness": 17
-            }, {
-                "weight": 1.2
             }]
         }, {
             "featureType": "landscape",
             "elementType": "geometry",
             "stylers": [{
-                "color": "#000000"
+                "color": "#f5f5f5"
             }, {
                 "lightness": 20
-            }]
-        }, {
-            "featureType": "poi",
-            "elementType": "geometry",
-            "stylers": [{
-                "color": "#000000"
-            }, {
-                "lightness": 21
             }]
         }, {
             "featureType": "road.highway",
             "elementType": "geometry.fill",
             "stylers": [{
-                "color": "#000000"
+                "color": "#ffffff"
             }, {
                 "lightness": 17
             }]
@@ -80,7 +38,7 @@ $(document).ready(function() {
             "featureType": "road.highway",
             "elementType": "geometry.stroke",
             "stylers": [{
-                "color": "#000000"
+                "color": "#ffffff"
             }, {
                 "lightness": 29
             }, {
@@ -90,7 +48,7 @@ $(document).ready(function() {
             "featureType": "road.arterial",
             "elementType": "geometry",
             "stylers": [{
-                "color": "#000000"
+                "color": "#ffffff"
             }, {
                 "lightness": 18
             }]
@@ -98,25 +56,74 @@ $(document).ready(function() {
             "featureType": "road.local",
             "elementType": "geometry",
             "stylers": [{
-                "color": "#000000"
+                "color": "#ffffff"
             }, {
                 "lightness": 16
+            }]
+        }, {
+            "featureType": "poi",
+            "elementType": "geometry",
+            "stylers": [{
+                "color": "#f5f5f5"
+            }, {
+                "lightness": 21
+            }]
+        }, {
+            "featureType": "poi.park",
+            "elementType": "geometry",
+            "stylers": [{
+                "color": "#dedede"
+            }, {
+                "lightness": 21
+            }]
+        }, {
+            "elementType": "labels.text.stroke",
+            "stylers": [{
+                "visibility": "on"
+            }, {
+                "color": "#ffffff"
+            }, {
+                "lightness": 16
+            }]
+        }, {
+            "elementType": "labels.text.fill",
+            "stylers": [{
+                "saturation": 36
+            }, {
+                "color": "#333333"
+            }, {
+                "lightness": 40
+            }]
+        }, {
+            "elementType": "labels.icon",
+            "stylers": [{
+                "visibility": "off"
             }]
         }, {
             "featureType": "transit",
             "elementType": "geometry",
             "stylers": [{
-                "color": "#000000"
+                "color": "#f2f2f2"
             }, {
                 "lightness": 19
             }]
         }, {
-            "featureType": "water",
-            "elementType": "geometry",
+            "featureType": "administrative",
+            "elementType": "geometry.fill",
             "stylers": [{
-                "color": "#000000"
+                "color": "#fefefe"
+            }, {
+                "lightness": 20
+            }]
+        }, {
+            "featureType": "administrative",
+            "elementType": "geometry.stroke",
+            "stylers": [{
+                "color": "#fefefe"
             }, {
                 "lightness": 17
+            }, {
+                "weight": 1.2
             }]
         }]
     };
@@ -129,7 +136,7 @@ $(document).ready(function() {
         radius: 4,
         color1: "#f0b80d",
         color2: "#0d9bed",
-        color3: "#54c51c",
+        color3: "#F32B44",
     };
 
     // opciones de los textos
@@ -138,7 +145,7 @@ $(document).ready(function() {
             textAlign: "center",
             fontSize: "10pt",
             borderRadius: "100%",
-            color: "#fff",
+            color: "#000",
         },
         disableAutoPan: true,
         closeBoxURL: "",
@@ -151,6 +158,7 @@ $(document).ready(function() {
     var data = [];
     var circles = [];
     var labels = [];
+    var overlap = {};
 
     // funcion principal
     function initialize() {
@@ -188,6 +196,25 @@ $(document).ready(function() {
             }
         });
 
+
+        $('#check3').click(function() {
+            //Se verifica si alguno de los checks esta seleccionado
+            if ($('input[name="option3"]').is(':checked')) {
+                showGPSCircle();
+            } else {
+                hideGPSCircle();
+            }
+        });
+
+        $('#check2').click(function() {
+            //Se verifica si alguno de los checks esta seleccionado
+            if ($('input[name="option2"]').is(':checked')) {
+                showOverlap();
+            } else {
+                hideOverlap();
+            }
+        });
+
         // inicializar mapa
         this.map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
         // inicializar bandas para centrar automaticamente
@@ -198,6 +225,8 @@ $(document).ready(function() {
         //leer archivo de texto
         var file = fileInput.files[0];
         fr.readAsText(file);
+
+        var celCircles = {};
 
         // evento de lectura de archivo
         fr.onload = function(e) {
@@ -214,9 +243,9 @@ $(document).ready(function() {
                 // texto interno de los circulos
                 var labelText = String(item.count);
                 // circulos de cada celda por si hay solpadas
-                var celCircles = {};
-
                 
+
+
                 // coordenadas por cada celda
                 _.each(item.apGPSs, function(coord) {
                     // validacion de las coord
@@ -229,6 +258,8 @@ $(document).ready(function() {
                         strokeColor: color,
                         fillColor: color,
                         id: coord.lat + coord.lng,
+                        lt: coord.lat,
+                        ln: coord.lng,
                     }));
                     // guardamos circulos de cada celda por si hay solapados
                     if (!celCircles[circle.id]) celCircles[circle.id] = circle;
@@ -247,23 +278,18 @@ $(document).ready(function() {
                     // agregando datos a las bandas para auto ajustar
                     this.bounds.extend(LatLng);
                 });
+            });
 
+            _.each(JSONObject, function(item, index) {
                 // coordenadas solapadas
                 if (item.apOlaps.length > 0) {
                     // recorremos las coordendas solapadas
                     _.each(item.apOlaps, function(olap) {
-                        // obtemos un id para buscar en el dict de circles por celda
-                        console.log(olap.lat + ", " + olap.lng + circle);
-                        var id = olap = olap.lat + olap.lng;
-                        // buscamos el id en el dict
-                        var circle = celCircles[id];
-
-                        // cambiamos el color
-                        // circle.strokeColor = circleOptions.color3;
-                        // circle.fillColor = circleOptions.color3;
-
-
-
+                        var id = olap.lat + olap.lng;
+                        if (celCircles[id]!=undefined){
+                            celCircles[id].strokeColor = circleOptions.color3;
+                            celCircles[id].fillColor = circleOptions.color3;
+                        }
                     });
                 }
             });
@@ -308,9 +334,19 @@ $(document).ready(function() {
         });
     }
 
+    function showGPSCircle() {
+        _.each(circles, function(circle) {
+            circle.setMap(this.map);
+        });
+    }
 
-    // INIT -----------------------------------------------//
-    // capturar evento cuando sube el archivo e iniciar todo
+    function hideGPSCircle() {
+            _.each(circles, function(circle) {
+                circle.setMap(null);
+            });
+        }
+        // INIT -----------------------------------------------//
+        // capturar evento cuando sube el archivo e iniciar todo
     fileInput.addEventListener('change', function(e) {
         initialize();
 

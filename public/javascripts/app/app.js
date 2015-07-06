@@ -137,6 +137,7 @@ $(document).ready(function() {
         color1: "#f0b80d",
         color2: "#0d9bed",
         color3: "#F32B44",
+        color4: "#000000",
     };
 
     // opciones de los textos
@@ -151,7 +152,7 @@ $(document).ready(function() {
         closeBoxURL: "",
         isHidden: false,
         pane: "mapPane",
-        enableEventPropagation: true
+        enableEventPropagation: true,
     };
 
 
@@ -227,6 +228,7 @@ $(document).ready(function() {
         fr.readAsText(file);
 
         var celCircles = {};
+        var celLabels = {};
 
         // evento de lectura de archivo
         fr.onload = function(e) {
@@ -243,7 +245,7 @@ $(document).ready(function() {
                 // texto interno de los circulos
                 var labelText = String(item.count);
                 // circulos de cada celda por si hay solpadas
-                
+
 
 
                 // coordenadas por cada celda
@@ -258,8 +260,6 @@ $(document).ready(function() {
                         strokeColor: color,
                         fillColor: color,
                         id: coord.lat + coord.lng,
-                        lt: coord.lat,
-                        ln: coord.lng,
                     }));
                     // guardamos circulos de cada celda por si hay solapados
                     if (!celCircles[circle.id]) celCircles[circle.id] = circle;
@@ -268,10 +268,14 @@ $(document).ready(function() {
                     var label = new InfoBox(_.extend(textOptions, {
                         content: labelText,
                         position: LatLng,
+                        id: coord.lat + coord.lng,
                     }));
+
+                    // guardamos labels de cada celda por si hay solapados
+                    if (!celLabels[label.id]) celLabels[label.id] = label;
+
                     label.open(this.map);
                     label.setPosition(circle.getCenter());
-
                     // guardando circulos y textos para redimensionar
                     circles.push(circle);
                     labels.push(label);
@@ -286,9 +290,18 @@ $(document).ready(function() {
                     // recorremos las coordendas solapadas
                     _.each(item.apOlaps, function(olap) {
                         var id = olap.lat + olap.lng;
-                        if (celCircles[id]!=undefined){
-                            celCircles[id].strokeColor = circleOptions.color3;
-                            celCircles[id].fillColor = circleOptions.color3;
+
+                        if (celCircles[id] != undefined) {
+                            var diff = olap.id - item.vcellid;
+                            if (diff <= 1) {
+                                celCircles[id].strokeColor = circleOptions.color3;
+                                celCircles[id].fillColor = circleOptions.color3;
+                            } else {
+                                celCircles[id].strokeColor = circleOptions.strokeColor.color4;
+                                celCircles[id].fillColor = circleOptions.fillColor.color4;
+                            }
+
+
                         }
                     });
                 }
